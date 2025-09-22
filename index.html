@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>今天吃什么 · 随机抽菜器</title>
+  <style>
+    :root{
+      --orange1:#ff7a45;  /* 橙红 */
+      --orange2:#ffbb55;  /* 橙黄 */
+      --mint:#52c41a;     /* 薄荷绿 */
+      --paper:#fffef9;
+      --ink:#333;
+      --card-border:#ffd8bf;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Microsoft YaHei",sans-serif;background:var(--paper);color:var(--ink)}
+    header{
+      text-align:center;padding:28px 20px;color:#fff;
+      background:linear-gradient(120deg,var(--orange1),var(--orange2));
+      border-bottom-left-radius:32px;border-bottom-right-radius:32px
+    }
+    header h1{margin:0;font-size:28px;font-weight:800}
+    main{max-width:720px;margin:20px auto;padding:0 16px;display:flex;flex-direction:column;gap:24px}
+    section{background:#fff;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,.08);padding:18px}
+    h2{margin:0 0 12px;font-size:18px;color:var(--orange1)}
+    .chips{display:flex;flex-wrap:wrap;gap:10px}
+    .chip{
+      background:#fff3e6;color:var(--orange1);
+      padding:8px 14px;border-radius:20px;cursor:pointer;font-size:14px;transition:.2s
+    }
+    .chip:hover{background:#ffe7d1}
+    .chip.active{background:var(--orange1);color:#fff}
+    label{display:block;margin:12px 0;font-size:14px}
+    input[type=number]{width:70px;padding:6px;border:1px solid #ddd;border-radius:8px}
+    .btn{
+      display:inline-block;margin-top:8px;padding:12px 20px;font-size:16px;font-weight:700;
+      color:#fff;background:linear-gradient(120deg,var(--orange1),var(--orange2));
+      border:none;border-radius:10px;cursor:pointer;transition:.2s
+    }
+    .btn:hover{opacity:.9}
+    .dish{
+      margin-top:14px;padding:14px;border-radius:12px;background:#fffef9;
+      border:1px solid var(--card-border);box-shadow:0 2px 6px rgba(0,0,0,.05);
+      opacity:0;transform:translateY(15px);animation:dishIn .5s forwards
+    }
+    @keyframes dishIn{
+      to{opacity:1;transform:translateY(0)}
+    }
+    .dish__title{display:flex;align-items:center;gap:6px;margin:0;font-size:17px;color:var(--orange1);cursor:pointer;user-select:none}
+    .dish__title .arrow{transition:.2s;transform:rotate(-90deg);font-size:14px;opacity:.8}
+    .dish.open .dish__title .arrow{transform:rotate(0)}
+    .cat{font-size:13px;color:#888;margin:6px 0 8px}
+    .content{font-size:14px;line-height:1.7;white-space:pre-wrap;display:none;margin-top:6px}
+    .actions{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
+    .btn-sec{
+      display:inline-block;padding:8px 14px;font-size:13px;font-weight:600;color:#fff;text-decoration:none;
+      background:linear-gradient(120deg,var(--orange1),var(--orange2));border-radius:8px;transition:.2s;border:none;cursor:pointer
+    }
+    .btn-sec:hover{opacity:.9}
+    .btn-sec--ghost{
+      background:#fff;color:var(--mint);border:1px solid var(--mint)
+    }
+    .btn-sec--ghost:hover{background:#f6ffed}
+
+    /* 弹窗 */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:999}
+    .modal.show{display:flex}
+    .modal__mask{position:absolute;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(2px)}
+    .modal__panel{
+      position:relative;background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.2);
+      width:min(720px,96vw);max-height:86vh;display:flex;flex-direction:column;overflow:hidden
+    }
+    .modal__hd{padding:14px 18px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px}
+    .modal__title{font-weight:800;color:var(--orange1);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .modal__bd{padding:18px;overflow:auto}
+    .modal__ft{padding:12px 18px;border-top:1px solid #eee;display:flex;gap:10px;justify-content:flex-end}
+    .x{border:none;background:transparent;font-size:22px;line-height:1;cursor:pointer;padding:6px 8px;border-radius:8px}
+    .x:hover{background:#f4f4f4}
+    #result .empty{color:#888}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>今天吃什么 · 随机抽菜器</h1>
+  </header>
+
+  <main>
+    <section>
+      <h2>选择分类</h2>
+      <div id="chips" class="chips"></div>
+      <label>抽取数量：<input id="count" type="number" min="1" value="1"></label>
+      <button id="draw" class="btn">开始抽菜</button>
+    </section>
+
+    <section>
+      <h2>抽取结果</h2>
+      <div id="result"><div class="empty">还没有结果～ 请选择分类并抽取。</div></div>
+    </section>
+  </main>
+
+  <!-- 预览弹窗 -->
+  <div id="previewModal" class="modal" aria-hidden="true">
+    <div class="modal__mask"></div>
+    <div class="modal__panel" role="dialog" aria-modal="true">
+      <div class="modal__hd">
+        <div class="modal__title" id="previewTitle">预览</div>
+        <button class="x" id="closePreview" title="关闭" aria-label="关闭">×</button>
+      </div>
+      <div class="modal__bd" id="previewBody"></div>
+      <div class="modal__ft">
+        <a id="previewGithub" class="btn-sec" target="_blank" rel="noopener">跳转 GitHub</a>
+        <button class="btn-sec btn-sec--ghost" id="previewCloseBtn">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    const GH_OWNER="Gar-b-age";
+    const GH_REPO="CookLikeHOC";
+    const BRANCH="main";
+    const CATEGORIES=["主食","凉拌","卤菜","早餐","汤","炒菜","炖菜","炸品","烤类","砂锅菜","蒸菜"];
+
+    const chipsEl=document.getElementById('chips');
+    const resultEl=document.getElementById('result');
+    const drawBtn=document.getElementById('draw');
+    const countEl=document.getElementById('count');
+
+    // modal refs
+    const modal=document.getElementById('previewModal');
+    const modalTitle=document.getElementById('previewTitle');
+    const modalBody=document.getElementById('previewBody');
+    const closeX=document.getElementById('closePreview');
+    const closeBtn=document.getElementById('previewCloseBtn');
+    const ghBtn=document.getElementById('previewGithub');
+
+    let selected=new Set();
+
+    CATEGORIES.forEach(cat=>{
+      const chip=document.createElement('div');
+      chip.className='chip';
+      chip.textContent=cat;
+      chip.onclick=()=>{
+        if(selected.has(cat))selected.delete(cat);else selected.add(cat);
+        chip.classList.toggle('active');
+      };
+      chipsEl.appendChild(chip);
+    });
+
+    async function fetchCategory(cat){
+      const url=`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${encodeURIComponent(cat)}?ref=${BRANCH}`;
+      const resp=await fetch(url);
+      if(!resp.ok)throw new Error("获取分类失败："+cat);
+      const data=await resp.json();
+      // 🔙 不再屏蔽 README.md
+      return data.filter(f=>f.type==="file" && f.name.endsWith(".md"));
+    }
+
+    async function fetchDish(cat,file){
+      const url=`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${encodeURIComponent(cat)}/${file}?ref=${BRANCH}`;
+      const resp=await fetch(url);
+      const data=await resp.json();
+      const binary=atob(data.content.replace(/\n/g,""));
+      const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
+      return new TextDecoder("utf-8").decode(bytes);
+    }
+
+    function sample(array,k){
+      const res=[]; array=[...array];
+      for(let i=0;i<k && array.length;i++){
+        const idx=Math.floor(Math.random()*array.length);
+        res.push(array.splice(idx,1)[0]);
+      }
+      return res;
+    }
+
+    function sanitizeAndRewrite(mdHtml,cat){
+      const parser=new DOMParser();
+      const doc=parser.parseFromString(mdHtml,"text/html");
+      doc.querySelectorAll('a').forEach(a=>{
+        const span=doc.createElement('span');
+        span.textContent=a.textContent||'';
+        a.replaceWith(span);
+      });
+      doc.querySelectorAll('img').forEach(img=>{
+        const src=img.getAttribute('src')||'';
+        if(!/^(https?:|data:|blob:)/i.test(src)){
+          const encodedPath=src.split('/').map(s=>encodeURIComponent(s)).join('/');
+          img.src=`https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${BRANCH}/${encodeURIComponent(cat)}/${encodedPath}`;
+        }
+        img.style.maxWidth='100%';
+        img.style.borderRadius='8px';
+        img.style.margin='8px 0';
+      });
+      return doc.body.innerHTML;
+    }
+
+    function openPreview({title,html,githubUrl}){
+      modalTitle.textContent=title;
+      modalBody.innerHTML=html;
+      ghBtn.href=githubUrl;
+      modal.classList.add('show');
+    }
+    function closePreview(){modal.classList.remove('show')}
+    document.querySelector('.modal__mask').onclick=closePreview;
+    closeX.onclick=closePreview;
+    closeBtn.onclick=closePreview;
+
+    drawBtn.onclick=async()=>{
+      resultEl.innerHTML="加载中...";
+      const cats=[...selected];
+      if(cats.length===0){resultEl.innerHTML="<div class='empty'>请先选择分类</div>";return;}
+      let all=[];
+      for(const cat of cats){
+        const list=await fetchCategory(cat);
+        list.forEach(f=>all.push({cat,file:f.name}));
+      }
+      if(all.length===0){resultEl.innerHTML="<div class='empty'>没有找到菜</div>";return;}
+      const picks=sample(all,parseInt(countEl.value||1,10));
+      resultEl.innerHTML="";
+      for(const p of picks){
+        const md=await fetchDish(p.cat,p.file);
+        const safeHtml=sanitizeAndRewrite(marked.parse(md),p.cat);
+        const dishEl=document.createElement('div');
+        dishEl.className='dish';
+        const title=p.file.replace(/\.md$/,"");
+        const githubUrl=`https://github.com/${GH_OWNER}/${GH_REPO}/blob/${BRANCH}/${encodeURIComponent(p.cat)}/${encodeURIComponent(p.file)}`;
+        dishEl.innerHTML=`
+          <h3 class="dish__title"><span class="arrow">▶</span>${title}</h3>
+          <div class="cat">${p.cat}</div>
+          <div class="content"></div>
+          <div class="actions">
+            <button class="btn-sec js-preview">展示</button>
+            <a class="btn-sec" href="${githubUrl}" target="_blank" rel="noopener">跳转 GitHub</a>
+          </div>`;
+        const titleEl=dishEl.querySelector('.dish__title');
+        const contentEl=dishEl.querySelector('.content');
+        const previewBtn=dishEl.querySelector('.js-preview');
+        titleEl.onclick=()=>{
+          const opened=contentEl.style.display==="block";
+          if(opened){contentEl.style.display="none";dishEl.classList.remove('open');}
+          else{contentEl.innerHTML=safeHtml;contentEl.style.display="block";dishEl.classList.add('open');}
+        };
+        previewBtn.onclick=()=>{openPreview({title,html:safeHtml,githubUrl})};
+        resultEl.appendChild(dishEl);
+      }
+    };
+  </script>
+</body>
+</html>
