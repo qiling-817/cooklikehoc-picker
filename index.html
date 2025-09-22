@@ -2,101 +2,181 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>今天吃什么 · 随机抽菜器</title>
   <style>
+    /* ============ 基础与主题色（食欲系） ============ */
     :root{
-      --orange1:#ff7a45;  /* 橙红 */
-      --orange2:#ffbb55;  /* 橙黄 */
-      --mint:#52c41a;     /* 薄荷绿 */
-      --paper:#fffef9;
-      --ink:#333;
-      --card-border:#ffd8bf;
+      --tomato:#ff6b57;
+      --carrot:#ffa53b;
+      --basil:#22c55e;
+      --cream:#fff8ee;
+      --paper:#fffdf8;
+      --ink:#2a2a2a;
+      --line:#f6e7d8;
+      --shadow:0 8px 24px rgba(255,107,87,.18);
+      --radius:18px;
     }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:"Microsoft YaHei",sans-serif;background:var(--paper);color:var(--ink)}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", "PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+      color:var(--ink);background:
+        radial-gradient(1200px 800px at 100% -10%, rgba(255,207,150,.28), transparent 60%),
+        radial-gradient(1200px 800px at -10% 0%, rgba(255,139,120,.18), transparent 60%),
+        var(--cream);
+    }
+    /* Header */
     header{
-      text-align:center;padding:28px 20px;color:#fff;
-      background:linear-gradient(120deg,var(--orange1),var(--orange2));
-      border-bottom-left-radius:32px;border-bottom-right-radius:32px
+      position:sticky;top:0;z-index:10;color:#fff;
+      background:linear-gradient(135deg,var(--tomato),var(--carrot));
+      padding:20px 16px 14px;border-bottom-left-radius:20px;border-bottom-right-radius:20px;
+      box-shadow:0 6px 20px rgba(255,107,87,.25);
     }
-    header h1{margin:0;font-size:28px;font-weight:800}
-    main{max-width:720px;margin:20px auto;padding:0 16px;display:flex;flex-direction:column;gap:24px}
-    section{background:#fff;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,.08);padding:18px}
-    h2{margin:0 0 12px;font-size:18px;color:var(--orange1)}
+    .hd-wrap{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:12px}
+    .logo{
+      width:42px;height:42px;border-radius:12px;background:#fff3;
+      display:grid;place-items:center;font-size:20px;backdrop-filter:blur(4px)
+    }
+    header h1{margin:0;font-size:20px;line-height:1.2;font-weight:800;letter-spacing:.5px}
+    header p{margin:4px 0 0;font-size:12px;opacity:.9}
+    /* 主体 */
+    main{max-width:680px;margin:12px auto 88px;padding:0 14px;display:flex;flex-direction:column;gap:14px}
+    section{
+      background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:14px 12px;
+    }
+    section h2{margin:0 0 10px;font-size:16px;color:var(--tomato)}
+    /* 分类 chips */
     .chips{display:flex;flex-wrap:wrap;gap:10px}
     .chip{
-      background:#fff3e6;color:var(--orange1);
-      padding:8px 14px;border-radius:20px;cursor:pointer;font-size:14px;transition:.2s
+      display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;
+      font-size:14px;border:1px solid #ffd8c7;background:#fff; color:#e1634f;
+      transition:transform .12s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+      box-shadow:0 2px 8px rgba(255,107,87,.08);
     }
-    .chip:hover{background:#ffe7d1}
-    .chip.active{background:var(--orange1);color:#fff}
-    label{display:block;margin:12px 0;font-size:14px}
-    input[type=number]{width:70px;padding:6px;border:1px solid #ddd;border-radius:8px}
+    .chip .e{font-size:15px}
+    .chip:active{transform:scale(.98)}
+    .chip.active{
+      background:linear-gradient(135deg,var(--tomato),var(--carrot)); color:#fff;border-color:transparent;
+      box-shadow:0 8px 20px rgba(255,107,87,.25)
+    }
+    /* 数量输入 */
+    .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+    .row label{font-size:13px;color:#6b6b6b}
+    .num{
+      display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff
+    }
+    .num button{width:40px;height:40px;border:none;background:transparent;font-size:18px;cursor:pointer}
+    .num input{width:56px;text-align:center;border:none;font-size:16px;padding:8px 0;outline:none}
+    /* 行为条（底部） */
+    .dock{
+      position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(255,255,255,.75);backdrop-filter:blur(8px);
+      border-top:1px solid var(--line);
+    }
+    .dock-inner{max-width:680px;margin:0 auto;padding:10px 14px;display:flex;gap:10px}
     .btn{
-      display:inline-block;margin-top:8px;padding:12px 20px;font-size:16px;font-weight:700;
-      color:#fff;background:linear-gradient(120deg,var(--orange1),var(--orange2));
-      border:none;border-radius:10px;cursor:pointer;transition:.2s
+      flex:1;display:inline-flex;justify-content:center;align-items:center;gap:8px;
+      padding:14px;border:none;border-radius:14px;font-size:16px;font-weight:800;color:#fff;
+      background:linear-gradient(135deg,var(--tomato),var(--carrot));box-shadow:0 14px 28px rgba(255,107,87,.3);
+      cursor:pointer;transition:transform .12s ease, box-shadow .2s ease, opacity .2s ease;
     }
-    .btn:hover{opacity:.9}
+    .btn:active{transform:translateY(1px)}
+    .btn:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
+    .btn-ghost{
+      flex:0 0 auto;background:#fff;color:#2a2a2a;border:1px solid var(--line);box-shadow:none;font-weight:700
+    }
+    /* 结果卡片 */
+    .empty{color:#8b8b8b;font-size:13px}
+    .cards{display:grid;gap:12px}
     .dish{
-      margin-top:14px;padding:14px;border-radius:12px;background:#fffef9;
-      border:1px solid var(--card-border);box-shadow:0 2px 6px rgba(0,0,0,.05);
-      opacity:0;transform:translateY(15px);animation:dishIn .5s forwards
+      background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;
+      transform:translateY(8px);opacity:0;animation:pop .36s ease forwards;
     }
-    @keyframes dishIn{
-      to{opacity:1;transform:translateY(0)}
+    @keyframes pop{to{transform:translateY(0);opacity:1}}
+    .dish__hd{
+      display:flex;align-items:center;gap:10px;padding:12px;
     }
-    .dish__title{display:flex;align-items:center;gap:6px;margin:0;font-size:17px;color:var(--orange1);cursor:pointer;user-select:none}
-    .dish__title .arrow{transition:.2s;transform:rotate(-90deg);font-size:14px;opacity:.8}
-    .dish.open .dish__title .arrow{transform:rotate(0)}
-    .cat{font-size:13px;color:#888;margin:6px 0 8px}
-    .content{font-size:14px;line-height:1.7;white-space:pre-wrap;display:none;margin-top:6px}
-    .actions{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
-    .btn-sec{
-      display:inline-block;padding:8px 14px;font-size:13px;font-weight:600;color:#fff;text-decoration:none;
-      background:linear-gradient(120deg,var(--orange1),var(--orange2));border-radius:8px;transition:.2s;border:none;cursor:pointer
+    .dish__arrow{width:18px;transition:transform .2s ease;opacity:.8}
+    .dish.open .dish__arrow{transform:rotate(90deg)}
+    .dish__title{flex:1;margin:0;font-size:16px;color:#dd523f;font-weight:800;letter-spacing:.2px}
+    .dish__tag{font-size:12px;color:#6b6b6b;background:#fff3;border:1px solid var(--line);padding:4px 8px;border-radius:999px}
+    .dish__bd{max-height:0;overflow:hidden;transition:max-height .25s ease; border-top:1px dashed #f0d9c8;background:linear-gradient(180deg,#fff, #fff8f2)}
+    .dish__content{padding:12px;font-size:14px;line-height:1.7}
+    .actions{display:flex;gap:10px;padding:0 12px 12px}
+    .btn-min{
+      flex:1;display:inline-flex;justify-content:center;align-items:center;
+      padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:700;
+      cursor:pointer;transition:background .2s ease, transform .12s ease
     }
-    .btn-sec:hover{opacity:.9}
-    .btn-sec--ghost{
-      background:#fff;color:var(--mint);border:1px solid var(--mint)
-    }
-    .btn-sec--ghost:hover{background:#f6ffed}
-
-    /* 弹窗 */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:999}
+    .btn-min:active{transform:translateY(1px)}
+    .btn-min.primary{background:linear-gradient(135deg,var(--tomato),var(--carrot));color:#fff;border-color:transparent}
+    /* Skeleton */
+    .skeleton{border-radius:14px;border:1px solid var(--line);background:#fff;overflow:hidden}
+    .sk-hd{height:44px;background:linear-gradient(90deg,#fff 0%, #f7f1ea 50%, #fff 100%);background-size:200% 100%;animation:shimmer 1.2s infinite}
+    .sk-bd{height:120px;background:linear-gradient(90deg,#fff 0%, #f7f1ea 50%, #fff 100%);background-size:200% 100%;animation:shimmer 1.2s infinite}
+    @keyframes shimmer{to{background-position:200% 0}}
+    /* Modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
     .modal.show{display:flex}
     .modal__mask{position:absolute;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(2px)}
-    .modal__panel{
-      position:relative;background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.2);
-      width:min(720px,96vw);max-height:86vh;display:flex;flex-direction:column;overflow:hidden
+    .modal__panel{position:relative;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:min(820px,100%);max-height:86vh;display:flex;flex-direction:column;overflow:hidden}
+    .modal__hd{padding:12px 14px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px}
+    .modal__title{font-weight:900;color:#dd523f;flex:1;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .modal__bd{padding:14px;overflow:auto}
+    .modal__ft{padding:12px 14px;border-top:1px solid #eee;display:flex;gap:10px;justify-content:flex-end}
+    .x{border:none;background:transparent;font-size:22px;line-height:1;cursor:pointer;padding:6px 8px;border-radius:10px}
+    .x:hover{background:#f6f6f6}
+    /* Toast */
+    .toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:rgba(42,42,42,.92);color:#fff;padding:10px 14px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:60}
+    .toast.show{opacity:1}
+    /* 小屏优化 */
+    @media (min-width:680px){
+      header h1{font-size:22px}
+      .dish__title{font-size:17px}
     }
-    .modal__hd{padding:14px 18px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px}
-    .modal__title{font-weight:800;color:var(--orange1);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .modal__bd{padding:18px;overflow:auto}
-    .modal__ft{padding:12px 18px;border-top:1px solid #eee;display:flex;gap:10px;justify-content:flex-end}
-    .x{border:none;background:transparent;font-size:22px;line-height:1;cursor:pointer;padding:6px 8px;border-radius:8px}
-    .x:hover{background:#f4f4f4}
-    #result .empty{color:#888}
   </style>
 </head>
 <body>
   <header>
-    <h1>今天吃什么 · 随机抽菜器</h1>
+    <div class="hd-wrap">
+      <div class="logo" aria-hidden="true">🍜</div>
+      <div>
+        <h1>今天吃什么 · 随机抽菜器</h1>
+        <p>勾选分类，抽取你今天的灵感菜单（默认折叠，点标题展开）</p>
+      </div>
+    </div>
   </header>
 
   <main>
-    <section>
-      <h2>选择分类</h2>
+    <section aria-labelledby="sec-cats">
+      <h2 id="sec-cats">选择分类</h2>
       <div id="chips" class="chips"></div>
-      <label>抽取数量：<input id="count" type="number" min="1" value="1"></label>
-      <button id="draw" class="btn">开始抽菜</button>
+      <div class="row">
+        <label for="count">抽取数量</label>
+        <div class="num" role="group" aria-label="抽取数量">
+          <button id="minus" aria-label="减少">−</button>
+          <input id="count" type="number" min="1" value="1" inputmode="numeric">
+          <button id="plus" aria-label="增加">＋</button>
+        </div>
+      </div>
     </section>
 
-    <section>
-      <h2>抽取结果</h2>
-      <div id="result"><div class="empty">还没有结果～ 请选择分类并抽取。</div></div>
+    <section aria-labelledby="sec-result">
+      <h2 id="sec-result">抽取结果</h2>
+      <div id="result" class="cards">
+        <div class="empty">还没有结果～ 请选择分类并点击“开始抽菜”。</div>
+      </div>
     </section>
   </main>
+
+  <!-- 底部操作条 -->
+  <div class="dock">
+    <div class="dock-inner">
+      <button id="draw" class="btn" aria-label="开始抽菜">🎲 开始抽菜</button>
+      <button id="clear" class="btn btn-ghost" aria-label="清空结果">清空</button>
+    </div>
+  </div>
 
   <!-- 预览弹窗 -->
   <div id="previewModal" class="modal" aria-hidden="true">
@@ -108,23 +188,33 @@
       </div>
       <div class="modal__bd" id="previewBody"></div>
       <div class="modal__ft">
-        <a id="previewGithub" class="btn-sec" target="_blank" rel="noopener">跳转 GitHub</a>
-        <button class="btn-sec btn-sec--ghost" id="previewCloseBtn">关闭</button>
+        <a id="previewGithub" class="btn-min primary" target="_blank" rel="noopener">跳转 GitHub</a>
+        <button class="btn-min" id="previewCloseBtn">关闭</button>
       </div>
     </div>
   </div>
 
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
+    // ====== 配置 ======
     const GH_OWNER="Gar-b-age";
     const GH_REPO="CookLikeHOC";
     const BRANCH="main";
-    const CATEGORIES=["主食","凉拌","卤菜","早餐","汤","炒菜","炖菜","炸品","烤类","砂锅菜","蒸菜"];
+    const CATEGORIES=[
+      ["主食","🍚"],["凉拌","🥗"],["卤菜","🍖"],["早餐","🥣"],["汤","🍲"],
+      ["炒菜","🍳"],["炖菜","🥘"],["炸品","🍤"],["烤类","🍢"],["砂锅菜","🍲"],["蒸菜","🥟"]
+    ];
 
     const chipsEl=document.getElementById('chips');
     const resultEl=document.getElementById('result');
     const drawBtn=document.getElementById('draw');
+    const clearBtn=document.getElementById('clear');
     const countEl=document.getElementById('count');
+    const minus=document.getElementById('minus');
+    const plus=document.getElementById('plus');
+    const toastEl=document.getElementById('toast');
 
     // modal refs
     const modal=document.getElementById('previewModal');
@@ -136,31 +226,39 @@
 
     let selected=new Set();
 
-    CATEGORIES.forEach(cat=>{
-      const chip=document.createElement('div');
+    // ====== UI: 分类 chips ======
+    CATEGORIES.forEach(([cat,emoji])=>{
+      const chip=document.createElement('button');
       chip.className='chip';
-      chip.textContent=cat;
+      chip.type='button';
+      chip.innerHTML=`<span class="e">${emoji}</span><span>${cat}</span>`;
       chip.onclick=()=>{
-        if(selected.has(cat))selected.delete(cat);else selected.add(cat);
+        if(selected.has(cat)) selected.delete(cat); else selected.add(cat);
         chip.classList.toggle('active');
       };
       chipsEl.appendChild(chip);
     });
 
+    // 数量控件
+    minus.onclick=()=>{countEl.value=Math.max(1, (parseInt(countEl.value||'1',10)-1));};
+    plus.onclick =()=>{countEl.value=(parseInt(countEl.value||'1',10)+1);};
+
+    // ====== 数据获取 ======
     async function fetchCategory(cat){
       const url=`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${encodeURIComponent(cat)}?ref=${BRANCH}`;
-      const resp=await fetch(url);
-      if(!resp.ok)throw new Error("获取分类失败："+cat);
+      const resp=await fetch(url,{headers:{'Accept':'application/vnd.github+json'}});
+      if(!resp.ok) throw new Error("获取分类失败："+cat);
       const data=await resp.json();
-      // 🔙 不再屏蔽 README.md
+      // 不屏蔽 README：全部 .md 文件
       return data.filter(f=>f.type==="file" && f.name.endsWith(".md"));
     }
 
     async function fetchDish(cat,file){
       const url=`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${encodeURIComponent(cat)}/${file}?ref=${BRANCH}`;
       const resp=await fetch(url);
+      if(!resp.ok) throw new Error("获取菜谱失败："+file);
       const data=await resp.json();
-      const binary=atob(data.content.replace(/\n/g,""));
+      const binary=atob(data.content.replace(/\\n/g,""));
       const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
       return new TextDecoder("utf-8").decode(bytes);
     }
@@ -177,74 +275,189 @@
     function sanitizeAndRewrite(mdHtml,cat){
       const parser=new DOMParser();
       const doc=parser.parseFromString(mdHtml,"text/html");
+      // 关闭所有外链，防误触
       doc.querySelectorAll('a').forEach(a=>{
         const span=doc.createElement('span');
         span.textContent=a.textContent||'';
         a.replaceWith(span);
       });
+      // 修复相对图片
       doc.querySelectorAll('img').forEach(img=>{
         const src=img.getAttribute('src')||'';
         if(!/^(https?:|data:|blob:)/i.test(src)){
           const encodedPath=src.split('/').map(s=>encodeURIComponent(s)).join('/');
           img.src=`https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${BRANCH}/${encodeURIComponent(cat)}/${encodedPath}`;
         }
+        img.loading='lazy';
+        img.decoding='async';
         img.style.maxWidth='100%';
-        img.style.borderRadius='8px';
+        img.style.borderRadius='12px';
         img.style.margin='8px 0';
       });
       return doc.body.innerHTML;
     }
 
+    function showToast(msg){
+      toastEl.textContent=msg;
+      toastEl.classList.add('show');
+      setTimeout(()=>toastEl.classList.remove('show'), 1600);
+    }
+
+    // ====== 卡片渲染 ======
+    function makeSkeleton(n=2){
+      resultEl.innerHTML='';
+      for(let i=0;i<n;i++){
+        const s=document.createElement('div');
+        s.className='skeleton';
+        s.innerHTML=`<div class="sk-hd"></div><div class="sk-bd"></div>`;
+        resultEl.appendChild(s);
+      }
+    }
+
+    function renderDish({cat,file,html}){
+      const dish=document.createElement('div');
+      dish.className='dish';
+      const title=file.replace(/\\.md$/, "");
+      const githubUrl=`https://github.com/${GH_OWNER}/${GH_REPO}/blob/${BRANCH}/${encodeURIComponent(cat)}/${encodeURIComponent(file)}`;
+      dish.innerHTML=`
+        <div class="dish__hd">
+          <svg class="dish__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 6l6 6-6 6"/>
+          </svg>
+          <h3 class="dish__title">${title}</h3>
+          <span class="dish__tag">${cat}</span>
+        </div>
+        <div class="dish__bd">
+          <div class="dish__content"></div>
+          <div class="actions">
+            <button class="btn-min primary js-preview">展示</button>
+            <a class="btn-min" href="${githubUrl}" target="_blank" rel="noopener">跳转 GitHub</a>
+          </div>
+        </div>
+      `;
+      const arrow=dish.querySelector('.dish__arrow');
+      const bd=dish.querySelector('.dish__bd');
+      const content=dish.querySelector('.dish__content');
+      const hd=dish.querySelector('.dish__hd');
+      const previewBtn=dish.querySelector('.js-preview');
+
+      let opened=false;
+      function toggle(){
+        opened=!opened;
+        dish.classList.toggle('open',opened);
+        if(opened){
+          content.innerHTML=html;
+          // 动态测量高度动画
+          bd.style.maxHeight='none';
+          const h=bd.scrollHeight;
+          bd.style.maxHeight='0px';
+          requestAnimationFrame(()=>{ bd.style.maxHeight=h+'px'; });
+        }else{
+          bd.style.maxHeight=bd.scrollHeight+'px';
+          requestAnimationFrame(()=>{ bd.style.maxHeight='0px'; });
+        }
+      }
+      hd.addEventListener('click', toggle);
+      previewBtn.addEventListener('click', ()=>{
+        openPreview({title,html,githubUrl});
+      });
+
+      resultEl.appendChild(dish);
+    }
+
+    // ====== 预览弹窗 ======
+    const modalMask=document.querySelector('.modal__mask');
     function openPreview({title,html,githubUrl}){
       modalTitle.textContent=title;
       modalBody.innerHTML=html;
       ghBtn.href=githubUrl;
       modal.classList.add('show');
+      document.body.style.overflow='hidden';
     }
-    function closePreview(){modal.classList.remove('show')}
-    document.querySelector('.modal__mask').onclick=closePreview;
+    function closePreview(){
+      modal.classList.remove('show');
+      document.body.style.overflow='';
+    }
+    modalMask.onclick=closePreview;
     closeX.onclick=closePreview;
     closeBtn.onclick=closePreview;
+    window.addEventListener('keydown',e=>{ if(e.key==='Escape' && modal.classList.contains('show')) closePreview(); });
 
-    drawBtn.onclick=async()=>{
-      resultEl.innerHTML="加载中...";
+    // ====== 抽取逻辑 ======
+    async function draw(){
       const cats=[...selected];
-      if(cats.length===0){resultEl.innerHTML="<div class='empty'>请先选择分类</div>";return;}
-      let all=[];
-      for(const cat of cats){
-        const list=await fetchCategory(cat);
-        list.forEach(f=>all.push({cat,file:f.name}));
+      if(cats.length===0){ showToast('先选择至少一个分类'); return; }
+      const k=Math.max(1, parseInt(countEl.value||'1',10));
+      makeSkeleton(Math.min(3,k));
+      drawBtn.disabled=true;
+
+      try{
+        // 聚合分类下所有 .md 文件
+        let all=[];
+        for(const cat of cats){
+          const list=await fetchCategory(cat);
+          list.forEach(f=>all.push({cat,file:f.name}));
+        }
+        if(all.length===0){
+          resultEl.innerHTML='<div class="empty">没有找到菜谱，请换个分类试试。</div>';
+          return;
+        }
+        const picks=sample(all,k);
+        resultEl.innerHTML='';
+        for(const p of picks){
+          const md=await fetchDish(p.cat,p.file);
+          const safeHtml=sanitizeAndRewrite(marked.parse(md), p.cat);
+          renderDish({cat:p.cat,file:p.file,html:safeHtml});
+        }
+        confettiBurst();
+      }catch(err){
+        console.error(err);
+        resultEl.innerHTML='<div class="empty">加载失败，请稍后重试。</div>';
+        showToast('网络繁忙，请稍后再试');
+      }finally{
+        drawBtn.disabled=false;
       }
-      if(all.length===0){resultEl.innerHTML="<div class='empty'>没有找到菜</div>";return;}
-      const picks=sample(all,parseInt(countEl.value||1,10));
-      resultEl.innerHTML="";
-      for(const p of picks){
-        const md=await fetchDish(p.cat,p.file);
-        const safeHtml=sanitizeAndRewrite(marked.parse(md),p.cat);
-        const dishEl=document.createElement('div');
-        dishEl.className='dish';
-        const title=p.file.replace(/\.md$/,"");
-        const githubUrl=`https://github.com/${GH_OWNER}/${GH_REPO}/blob/${BRANCH}/${encodeURIComponent(p.cat)}/${encodeURIComponent(p.file)}`;
-        dishEl.innerHTML=`
-          <h3 class="dish__title"><span class="arrow">▶</span>${title}</h3>
-          <div class="cat">${p.cat}</div>
-          <div class="content"></div>
-          <div class="actions">
-            <button class="btn-sec js-preview">展示</button>
-            <a class="btn-sec" href="${githubUrl}" target="_blank" rel="noopener">跳转 GitHub</a>
-          </div>`;
-        const titleEl=dishEl.querySelector('.dish__title');
-        const contentEl=dishEl.querySelector('.content');
-        const previewBtn=dishEl.querySelector('.js-preview');
-        titleEl.onclick=()=>{
-          const opened=contentEl.style.display==="block";
-          if(opened){contentEl.style.display="none";dishEl.classList.remove('open');}
-          else{contentEl.innerHTML=safeHtml;contentEl.style.display="block";dishEl.classList.add('open');}
-        };
-        previewBtn.onclick=()=>{openPreview({title,html:safeHtml,githubUrl})};
-        resultEl.appendChild(dishEl);
+    }
+
+    // 绑定
+    drawBtn.addEventListener('click', draw);
+    clearBtn.addEventListener('click', ()=>{
+      resultEl.innerHTML='<div class="empty">已清空～ 再抽一次？</div>';
+    });
+
+    // ====== 小小的彩带动画（无依赖） ======
+    function confettiBurst(){
+      if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const c=document.createElement('canvas');
+      c.style.position='fixed'; c.style.inset='0'; c.style.pointerEvents='none'; c.style.zIndex='40';
+      document.body.appendChild(c);
+      const ctx=c.getContext('2d');
+      const dpr=window.devicePixelRatio||1;
+      function resize(){ c.width=innerWidth*dpr; c.height=innerHeight*dpr; }
+      resize(); window.addEventListener('resize', resize, {once:true});
+      const N=80, parts=[];
+      for(let i=0;i<N;i++){
+        parts.push({
+          x:Math.random()*c.width, y:-Math.random()*c.height*0.3, r:4+Math.random()*6,
+          vx:(Math.random()-.5)*1.2, vy:1+Math.random()*2.4, rot:Math.random()*6.28, vr:(Math.random()-.5)*0.2,
+          color: ["#ff6b57","#ffa53b","#22c55e","#ffd166","#ff9f1c"][Math.floor(Math.random()*5)]
+        });
       }
-    };
+      let t=0, life=90;
+      (function loop(){
+        ctx.clearRect(0,0,c.width,c.height);
+        parts.forEach(p=>{
+          p.x+=p.vx*dpr; p.y+=p.vy*dpr; p.rot+=p.vr;
+          ctx.save();
+          ctx.translate(p.x,p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle=p.color;
+          ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2);
+          ctx.restore();
+        });
+        if(++t<life) requestAnimationFrame(loop); else c.remove();
+      })();
+    }
   </script>
 </body>
 </html>
